@@ -1,5 +1,5 @@
 // PLAYMAX Admin: network first for code so updates arrive at once; GitHub API calls are never cached.
-const CACHE = 'playmax-admin-v7';
+const CACHE = 'playmax-admin-v8';
 const SHELL = ['./', './index.html', './core.js', './manifest.webmanifest', './assets/logo-circle.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('playmax-admin-') && k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });

@@ -348,6 +348,7 @@ function vShip(){const d=A.draft, c=d.contact;
   '<div class="card"><label class="f">رسوم التركيب لكل ماكينة ($) <small>اكتب 0 لإلغائها</small><input class="in num" id="sInst" type="number" min="0" step="5" dir="ltr" value="'+esc(d.install)+'"></label></div>'+
   '<div class="card" style="display:flex;flex-direction:column;gap:12px"><h2>أرقام وحسابات التواصل</h2><p class="muted" style="font-size:12.5px;font-weight:700">الطلبات من الموقع والتطبيق تُرسل إلى رقم الواتساب والتيليجرام هنا.</p>'+
   [['cPhone','رقم الهاتف','phone','+93 77 990 1111','tel'],['cWa','رقم واتساب','whatsapp','+93 77 990 1111','tel'],['cTg','تيليجرام (رقم أو اسم مستخدم)','telegram','+93 77 990 1111 أو @playmax','text'],['cMail','البريد الإلكتروني','email','name@gmail.com','email'],['cIg','رابط إنستغرام','instagram','https://www.instagram.com/…','url'],['cFb','رابط فيسبوك','facebook','https://www.facebook.com/…','url'],['cTt','رابط تيك توك','tiktok','https://www.tiktok.com/@…','url']].map(([id,l,k,ph,type])=>'<label class="f">'+l+'<input class="in" id="'+id+'" type="'+type+'" dir="ltr" placeholder="'+esc(ph)+'" value="'+esc(c[k]||'')+'"></label>').join('')+'</div>'+
+  '<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2>🤖 بوت تيليغرام للطلبات (اختياري)</h2><p class="muted" style="font-size:12.5px;font-weight:700">إذا حطيت رابط البوت هون، الطلب بيوصلك على تيليغرام مباشرة من غير ما الزبون يلصق شي. إذا فاضي، بيضل الإرسال متل ما هو (نسخ ولصق).</p><label class="f">رابط البوت (Worker)<input class="in" id="cBot" type="url" dir="ltr" placeholder="https://playmax-bot.xxxx.workers.dev" value="'+esc(c.orderBot||'')+'"></label><button type="button" class="btn ghost sm" data-act="testBot">📨 إرسال رسالة تجربة</button></div>'+
   '<button class="btn block" type="submit">حفظ</button></form>';}
 function vSettings(){const c=A.cfg;
   return topbar('الإعدادات','ربط GitHub والأمان')+'<div class="pad">'+
@@ -573,6 +574,7 @@ document.addEventListener('click',async e=>{
   if(act==='sub'){A[d.k]=d.v; render(); return;}
   if(act==='newPromo') return openPage({type:'promo',id:'new'});
   if(act==='newCPage') return openPage({type:'cpage',id:'new'});
+  if(act==='testBot'){const u=($('#cBot')||{value:''}).value.trim(); if(!/^https:\/\//.test(u)){toast('حط رابط البوت أولاً');return;} toast('جاري الإرسال…'); try{const r=await fetch(u,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({text:'✅ PLAYMAX: رسالة تجربة من تطبيق الإدارة — البوت شغال',page:'admin'})}); const j=await r.json().catch(()=>({})); toast(r.ok&&j.ok?'✓ وصلت الرسالة؟ شوف تيليغرام':'ما زبط: '+(j.error||r.status));}catch(err){toast('ما قدرت أوصل للبوت. تأكد من الرابط');} return;}
   if(act==='newGuide') return openPage({type:'guide',id:'new'});
   if(act==='goHomeDesign'){A.tab='content'; A.sub='home'; closePage(); render(); window.scrollTo(0,0); return;}
   if(act==='newBlock') return openPage({type:'block',id:'new'});
@@ -708,7 +710,8 @@ document.addEventListener('submit',async e=>{const f=e.target; const kind=f.data
     persist(); closePage(); A.tab='content'; A.sub='news'; render(); toast('تم حفظ الخبر ✓ — انشر ليظهر'); return;}
   if(kind==='ship'){collectShip(); const d=A.draft; d.rates=d.rates.filter(r=>r.country); if(!d.rates.length){toast('أضف دولة واحدة على الأقل');return;}
     d.install=Math.max(0,+$('#sInst').value||0);
-    d.contact={phone:$('#cPhone').value.trim(),whatsapp:$('#cWa').value.trim(),telegram:$('#cTg').value.trim(),email:$('#cMail').value.trim(),instagram:$('#cIg').value.trim(),facebook:$('#cFb').value.trim(),tiktok:$('#cTt').value.trim()};
+    d.contact={phone:$('#cPhone').value.trim(),whatsapp:$('#cWa').value.trim(),telegram:$('#cTg').value.trim(),email:$('#cMail').value.trim(),instagram:$('#cIg').value.trim(),facebook:$('#cFb').value.trim(),tiktok:$('#cTt').value.trim(),orderBot:$('#cBot').value.trim()};
+    if(d.contact.orderBot&&!/^https:\/\/[\w.-]+(\/[\w\-./]*)?$/.test(d.contact.orderBot)){toast('رابط البوت لازم يبلّش بـ https://');return;}
     persist(); render(); toast('تم الحفظ ✓ — انشر ليظهر'); return;}
   if(kind==='gh'){const cfg={...A.cfg,owner:$('#gOwner').value.trim().replace(/^@/,''),token:$('#gToken').value.trim(),webRepo:$('#gWeb').value.trim(),appRepo:$('#gApp').value.trim(),webUrl:$('#gWebUrl').value.trim(),appUrl:$('#gAppUrl').value.trim(),branches:{}};
     if(!cfg.owner||!cfg.token||!(cfg.webRepo||cfg.appRepo)){toast('اكتب اسم الحساب والرمز واسم مستودع واحد على الأقل');return;}
